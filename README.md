@@ -202,7 +202,11 @@ Smokeshow handles everything up to and including OTLP export. Collector and back
 - Domain-specific attributes (`arc.home.*`, `arc.detail.*`)
 - Raw `test.page` access for JavaScript evaluation
 
-The resulting trace shows the full three-level hierarchy in Jaeger/Tempo:
+Here's what a suite run looks like in Jaeger:
+
+![Three-level span hierarchy in Jaeger](docs/trace-screenshot.png)
+
+The span tree for the same run:
 
 ```
 suite("arc-damage-tracker-smoke")
