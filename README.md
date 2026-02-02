@@ -1,5 +1,11 @@
 # smokeshow
 
+[![CI](https://github.com/gotoplanb/smokeshow/actions/workflows/ci.yml/badge.svg)](https://github.com/gotoplanb/smokeshow/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/gotoplanb/smokeshow/graph/badge.svg)](https://codecov.io/gh/gotoplanb/smokeshow)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/github/license/gotoplanb/smokeshow)](https://github.com/gotoplanb/smokeshow/blob/main/LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/gotoplanb/smokeshow/releases/tag/v0.1.0)
+
 OpenTelemetry instrumentation for Playwright E2E tests. One trace per suite run, with a three-level span hierarchy that gives you full observability into test behavior, timing, and reliability using the same Grafana stack you'd use for production services.
 
 ## Install
