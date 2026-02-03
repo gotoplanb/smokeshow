@@ -1,5 +1,7 @@
 """TestCase async context manager — wraps a single test case with OTEL spans."""
 
+import logging
+
 from opentelemetry import trace
 from opentelemetry.trace import StatusCode
 
@@ -14,11 +16,13 @@ class TestCase:
     instrumented actions to ActionInstrumentor.
     """
 
-    def __init__(self, tracer, suite_ctx, page, record_result_fn, *, name, case_id="", tags="", description=""):
+    def __init__(self, tracer, suite_ctx, page, record_result_fn, *, logger=None, suite_name="", name, case_id="", tags="", description=""):
         self._tracer = tracer
         self._suite_ctx = suite_ctx
         self._page = page
         self._record_result = record_result_fn
+        self._logger = logger
+        self._suite_name = suite_name
         self._name = name
         self._case_id = case_id
         self._tags = tags
@@ -55,6 +59,16 @@ class TestCase:
             self._case_span.set_status(StatusCode.ERROR, str(exc_val))
             self._case_span.record_exception(exc_val)
             self._record_result(False)
+
+            # Emit error log correlated with the trace via active span context
+            if self._logger:
+                trace_id = format(self._case_span.get_span_context().trace_id, "032x")
+                span_id = format(self._case_span.get_span_context().span_id, "016x")
+                case_label = self._case_id or self._name
+                self._logger.error(
+                    "Test case FAILED: %s [%s] — %s (url=%s, trace_id=%s, span_id=%s)",
+                    case_label, self._suite_name, exc_val, self._page.url, trace_id, span_id,
+                )
         else:
             self._case_span.set_attribute("test.case.result", "passed")
             self._case_span.set_status(StatusCode.OK)

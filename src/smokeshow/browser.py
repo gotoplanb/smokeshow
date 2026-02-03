@@ -3,12 +3,18 @@
 import uuid
 from datetime import datetime, timezone
 
+import logging
+
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.trace import StatusCode
+from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
+from opentelemetry._logs import set_logger_provider
 from playwright.async_api import async_playwright
 
 from smokeshow.config import SmokeshowConfig
@@ -74,7 +80,19 @@ class InstrumentedBrowser:
         )
         self._provider.add_span_processor(BatchSpanProcessor(exporter))
         trace.set_tracer_provider(self._provider)
-        self._tracer = trace.get_tracer("smokeshow", "0.1.0")
+        self._tracer = trace.get_tracer("smokeshow", "0.2.0")
+
+        # Set up OTEL logging (emits error logs for failed test cases, correlated with traces)
+        self._log_provider = LoggerProvider(resource=resource)
+        log_exporter = OTLPLogExporter(
+            endpoint=cfg.otlp_endpoint, insecure=cfg.otlp_insecure
+        )
+        self._log_provider.add_log_record_processor(BatchLogRecordProcessor(log_exporter))
+        set_logger_provider(self._log_provider)
+        handler = LoggingHandler(level=logging.ERROR, logger_provider=self._log_provider)
+        self._logger = logging.getLogger("smokeshow.test_results")
+        self._logger.addHandler(handler)
+        self._logger.setLevel(logging.ERROR)
 
         # Build suite span attributes
         suite_id = str(uuid.uuid4())
@@ -128,6 +146,7 @@ class InstrumentedBrowser:
 
         # Flush telemetry
         self._provider.force_flush()
+        self._log_provider.force_flush()
 
         return False
 
@@ -139,6 +158,8 @@ class InstrumentedBrowser:
             self._suite_ctx,
             self._page,
             self._record_result,
+            logger=self._logger,
+            suite_name=self._config.suite_name,
             name=name,
             case_id=case_id,
             tags=tags,
