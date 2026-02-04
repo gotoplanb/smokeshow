@@ -4,7 +4,6 @@
 [![codecov](https://codecov.io/gh/gotoplanb/smokeshow/graph/badge.svg)](https://codecov.io/gh/gotoplanb/smokeshow)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/github/license/gotoplanb/smokeshow)](https://github.com/gotoplanb/smokeshow/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/gotoplanb/smokeshow/releases/tag/v0.1.0)
 
 OpenTelemetry instrumentation for Playwright E2E tests. One trace per suite run, with a three-level span hierarchy that gives you full observability into test behavior, timing, and reliability using the same Grafana stack you'd use for production services.
 
@@ -252,9 +251,3 @@ pip install -e ".[dev]"
 pytest -v
 ```
 
-## Roadmap
-
-- **v0.1** (current): Traces with full span hierarchy, sensitive data redaction, navigation timing
-- **v0.2**: Metrics (test duration histograms, pass/fail counters)
-- **v0.2**: Structured logs via OTEL log bridge
-- **v0.2**: pytest plugin for automatic test discovery and instrumentation

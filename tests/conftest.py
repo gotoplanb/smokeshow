@@ -20,7 +20,7 @@ def otel_setup():
     resource = Resource.create({"service.name": "test-service"})
     provider = TracerProvider(resource=resource)
     provider.add_span_processor(SimpleSpanProcessor(exporter))
-    tracer = provider.get_tracer("smokeshow-test", "0.1.0")
+    tracer = provider.get_tracer("smokeshow-test", "0.2.0")
     yield tracer, exporter
     exporter.clear()
     provider.shutdown()
